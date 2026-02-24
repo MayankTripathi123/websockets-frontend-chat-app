@@ -10,8 +10,17 @@ import { AuthIoAdapter } from './chat/adapters/auth.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://bdhwx8m9-3000.inc1.devtunnels.ms',
+  ];
 
   app.use(cookieParser());
+  app.enableCors({
+    origin: allowedOrigins,
+    credentials: true,
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -20,7 +29,7 @@ async function bootstrap() {
     }),
   );
 
-  app.useWebSocketAdapter(new AuthIoAdapter(app));
+  app.useWebSocketAdapter(new AuthIoAdapter(app, allowedOrigins));
 
   const options = new DocumentBuilder()
     .setTitle('Realtime Chat')
@@ -30,6 +39,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(3000);
+  const port = process.env.PORT ? Number(process.env.PORT) : 3002;
+  await app.listen(port);
 }
 bootstrap();

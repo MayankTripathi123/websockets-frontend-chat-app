@@ -8,14 +8,29 @@ export class AuthIoAdapter extends IoAdapter {
   private readonly authService: AuthService;
   private readonly userService: UserService;
 
-  constructor(private app: INestApplicationContext) {
+  constructor(
+    private app: INestApplicationContext,
+    private readonly corsOrigins: string[] = [],
+  ) {
     super(app);
     this.authService = this.app.get(AuthService);
     this.userService = this.app.get(UserService);
   }
 
   createIOServer(port: number, options?: any): any {
-    options.allowRequest = async (request, allowFunction) => {
+    const corsOptions = this.corsOrigins.length
+      ? { origin: this.corsOrigins, credentials: true }
+      : { origin: '*', credentials: true };
+
+    const ioOptions = {
+      ...(options ?? {}),
+      cors: {
+        ...(options?.cors ?? {}),
+        ...corsOptions,
+      },
+    };
+
+    ioOptions.allowRequest = async (request, allowFunction) => {
       const token = request._query?.token;
 
       const isVerified =
@@ -30,6 +45,6 @@ export class AuthIoAdapter extends IoAdapter {
       return allowFunction('Unauthorized', false);
     };
 
-    return super.createIOServer(port, options);
+    return super.createIOServer(port, ioOptions);
   }
 }

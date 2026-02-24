@@ -9,7 +9,10 @@ import { RoomModule } from './room/room.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      // Load default .env and allow local overrides (e.g., .env.local)
+      envFilePath: ['.env', '.env.local'],
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
