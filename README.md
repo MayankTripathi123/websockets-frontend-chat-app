@@ -46,3 +46,15 @@ $ docker-compose up
 $ yarn run start
 ```
 
+## Frontend (Next.js)
+
+A Next.js client lives in `frontend/` and assumes the API/WebSocket server runs on port `3002`.
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Environment defaults are in `frontend/.env.local.example`.
+
